@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Login</title>
+  <link rel="stylesheet" href="student.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Student Login</h2>
+    <label for="student-id">Student ID:</label>
+    <input type="text" id="student-id" placeholder="Enter Student ID">
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter Password">
+    <button id="proceed-btn">Proceed</button>
+  </div>
+  <script>
+    document.getElementById("proceed-btn").addEventListener("click", function () {
+      const studentID = document.getElementById("student-id").value.trim();
+      const password = document.getElementById("password").value.trim();
+      if (studentID === "" || password === "") {
+        alert("Please fill in all details.");
+        return;
+      }
+      localStorage.setItem("userType", "student");
+      localStorage.setItem("studentID", studentID);
+      window.location.href = "rooms.html";
+    });
+  </script>
+</body>
+</html>

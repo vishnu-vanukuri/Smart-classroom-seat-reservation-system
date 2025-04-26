@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lecturer Login</title>
+  <link rel="stylesheet" href="lecturer.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Lecturer Login</h2>
+    <label for="lecturer-id">Lecturer ID:</label>
+    <input type="text" id="lecturer-id" placeholder="Enter Lecturer ID">
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter Password">
+    <button id="proceed-btn">Proceed</button>
+  </div>
+  <script>
+    document.getElementById("proceed-btn").addEventListener("click", function () {
+      const lecturerID = document.getElementById("lecturer-id").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (lecturerID === "" || password === "") {
+        alert("Please fill in all details.");
+        return;
+      }
+      localStorage.setItem("userType", "lecturer");
+      localStorage.setItem("lecturerID", lecturerID);
+      window.location.href = "rooms.html";
+    });
+  </script>
+</body>
+</html>

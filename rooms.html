@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Select Room</title>
+  <link rel="stylesheet" href="rooms.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Available Rooms</h1>
+    <div class="rooms-grid" id="rooms-grid"></div>
+  </div>
+  <div class="modal" id="confirmModal">
+    <div class="modal-content">
+      <p>Do you want to proceed to seat selection?</p>
+      <div class="modal-actions">
+        <button id="yesBtn">Yes</button>
+        <button id="noBtn">No</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const roomsGrid = document.getElementById("rooms-grid");
+    const modal = document.getElementById("confirmModal");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    let selectedRoom = null;
+    const userType = localStorage.getItem("userType") || "student";
+    for (let floor = 1; floor <= 6; floor++) {
+      for (let room = 1; room <= 6; room++) {
+        const roomNo = floor * 100 + room;
+        const div = document.createElement("div");
+        div.className = "room-card";
+        div.textContent = `Room ${roomNo}`;
+        div.onclick = () => {
+          selectedRoom = roomNo;
+          modal.style.display = "flex";
+        };
+        roomsGrid.appendChild(div);
+      }
+    }
+    yesBtn.onclick = () => {
+      modal.style.display = "none";
+      window.location.href = `seats.html?room=${selectedRoom}`;
+    };
+    noBtn.onclick = () => {
+      modal.style.display = "none";
+      selectedRoom = null;
+    };
+  </script>
+</body>
+</html>

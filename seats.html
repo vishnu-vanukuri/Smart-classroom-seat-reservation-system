@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seat Selection</title>
+  <link rel="stylesheet" href="seats.css" />
+  <link rel="script" href="seats.js"/>
+</head>
+<body>
+  <div class="container">
+    <h1 id="room-title">Seat Selection</h1>
+    <div class="seat-grid" id="seat-grid"></div>
+    <div class="actions">
+      <button id="reserveBtn" disabled>Reserve</button>
+      <button id="cancelBtn" disabled>Cancel</button>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal" id="confirmModal">
+    <div class="modal-content">
+      <p id="confirmText">Proceed with action?</p>
+      <div class="modal-actions">
+        <button id="yesBtn">Yes</button>
+        <button id="noBtn">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assignment Modal for Exam Cell -->
+  <div class="modal" id="assignModal">
+    <div class="modal-content">
+      <p>Assign Student to Seat <span id="assignSeatNum"></span></p>
+      <input type="text" id="regInput" placeholder="Enter Reg. Number" />
+      <div class="modal-actions">
+        <button id="assignConfirm">Assign</button>
+        <button id="assignCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomNumber = urlParams.get("room");
+    if (!roomNumber) {
+      alert("No room selected! Redirecting...");
+      window.location.href = "rooms.html";
+    }
+
+    const userType = localStorage.getItem("userType") || "student";
+    const currentUser = localStorage.getItem("username") || "Guest";
+    const seatGrid = document.getElementById("seat-grid");
+    const reserveBtn = document.getElementById("reserveBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const roomTitle = document.getElementById("room-title");
+    const confirmModal = document.getElementById("confirmModal");
+    const confirmText = document.getElementById("confirmText");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+
+    const assignModal = document.getElementById("assignModal");
+    const assignSeatNumEl = document.getElementById("assignSeatNum");
+    const regInput = document.getElementById("regInput");
+    const assignConfirm = document.getElementById("assignConfirm");
+    const assignCancel = document.getElementById("assignCancel");
+
+    roomTitle.innerText = `Room ${roomNumber} - Seat Selection`;
+
+    const bookedSeats = JSON.parse(localStorage.getItem(`bookedSeats_${roomNumber}`)) || {};
+    const examAssignments = JSON.parse(localStorage.getItem("examAssignments") || "{}");
+    if (!examAssignments[roomNumber]) examAssignments[roomNumber] = {};
+
+    const selectedSeats = new Set();
+    const cancelSeats = new Set();
+    let selectedAssignSeat = null;
+
+    function openAssignModal(seatNum) {
+      selectedAssignSeat = seatNum;
+      assignSeatNumEl.textContent = seatNum;
+      regInput.value = examAssignments[roomNumber][seatNum] || "";
+      assignModal.style.display = "flex";
+      regInput.focus();
+    }
+
+    assignConfirm.onclick = () => {
+      const reg = regInput.value.trim();
+      if (reg) {
+        examAssignments[roomNumber][selectedAssignSeat] = reg;
+        localStorage.setItem("examAssignments", JSON.stringify(examAssignments));
+        assignModal.style.display = "none";
+        location.reload();
+      }
+    };
+
+    assignCancel.onclick = () => {
+      assignModal.style.display = "none";
+    };
+
+    for (let i = 1; i <= 40; i++) {
+      const seat = document.createElement("div");
+      seat.className = "seat";
+      seat.dataset.seat = i;
+
+      if (userType === "examcell") {
+        seat.onclick = () => openAssignModal(i);
+        const assignedReg = examAssignments[roomNumber][i];
+        seat.textContent = i;
+        if (assignedReg) {
+          const label = document.createElement("div");
+          label.className = "reg-label";
+          label.textContent = assignedReg;
+          seat.appendChild(label);
+          seat.classList.add("reserved");
+        } else {
+          seat.textContent = i;
+        }
+      } else {
+        seat.textContent = i;
+        if (bookedSeats[i]) {
+          seat.classList.add("reserved");
+          if (bookedSeats[i] === currentUser) {
+            seat.classList.add("your-seat");
+            seat.onclick = () => toggleCancel(seat);
+          }
+        } else {
+          seat.onclick = () => toggleSelect(seat);
+        }
+      }
+
+      seatGrid.appendChild(seat);
+    }
+
+    function toggleSelect(seat) {
+      const seatNum = seat.dataset.seat;
+      if (userType === "student") {
+        document.querySelectorAll(".seat.selected").forEach(s => {
+          s.classList.remove("selected");
+          selectedSeats.delete(s.dataset.seat);
+        });
+      }
+      seat.classList.toggle("selected");
+      selectedSeats.has(seatNum) ? selectedSeats.delete(seatNum) : selectedSeats.add(seatNum);
+      reserveBtn.disabled = selectedSeats.size === 0;
+    }
+
+    function toggleCancel(seat) {
+      const seatNum = seat.dataset.seat;
+      seat.classList.toggle("cancel-mark");
+      cancelSeats.has(seatNum) ? cancelSeats.delete(seatNum) : cancelSeats.add(seatNum);
+      cancelBtn.disabled = cancelSeats.size === 0;
+    }
+
+    reserveBtn.onclick = () => {
+      confirmText.textContent = `Confirm reservation of seat(s): ${[...selectedSeats].join(", ")}?`;
+      confirmModal.style.display = "flex";
+      yesBtn.onclick = () => {
+        selectedSeats.forEach(seat => bookedSeats[seat] = currentUser);
+        localStorage.setItem(`bookedSeats_${roomNumber}`, JSON.stringify(bookedSeats));
+        confirmModal.style.display = "none";
+        location.reload();
+      };
+      noBtn.onclick = () => confirmModal.style.display = "none";
+    };
+
+    cancelBtn.onclick = () => {
+      confirmText.textContent = `Cancel reservation of seat(s): ${[...cancelSeats].join(", ")}?`;
+      confirmModal.style.display = "flex";
+      yesBtn.onclick = () => {
+        cancelSeats.forEach(seat => delete bookedSeats[seat]);
+        localStorage.setItem(`bookedSeats_${roomNumber}`, JSON.stringify(bookedSeats));
+        confirmModal.style.display = "none";
+        location.reload();
+      };
+      noBtn.onclick = () => confirmModal.style.display = "none";
+    };
+  </script>
+</body>
+</html>

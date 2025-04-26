@@ -1,0 +1,70 @@
+/* Footer Styling */
+footer {
+    background-color: #051d35da;/* Fully Black Background */
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    margin-top: 50px;
+}
+
+/* Footer Container */
+.footer-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: auto;
+    padding-bottom: 20px;
+}
+
+/* Footer Sections */
+.footer-section {
+    flex: 1;
+    min-width: 250px;
+    margin: 10px;
+}
+
+.footer-section h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #f8b400; /* Highlight Color */
+}
+
+.footer-section p, 
+.footer-section a {
+    font-size: 14px;
+    color: #fdf9f9;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+/* Hover Effect */
+.footer-section a:hover {
+    color: #f8b400;
+}
+
+/* Social Media Icons */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.social-icons img {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.3s ease;
+}
+
+.social-icons a:hover img {
+    transform: scale(1.2);
+}
+
+/* Footer Bottom */
+.footer-bottom {
+    background-color: #e9edf0da; /* Fully Black */
+    padding: 15px;
+    font-size: 14px;
+    color: #f8f4f4;
+}
